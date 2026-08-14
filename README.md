@@ -1,6 +1,12 @@
-# DeVy Core
+<p align="center">
+    <img src="DeVy.png" alt="DeVy Framework" width="180">
+</p>
 
-Core framework infrastructure for the DeVy PHP application platform.
+<h1 align="center">DeVy Core</h1>
+
+<p align="center">
+    Core framework infrastructure for the DeVy PHP application platform.
+</p>
 
 DeVy Core provides the foundational services, contracts, HTTP infrastructure,
 module system, plugin infrastructure, persistence, rendering, security,
@@ -16,4 +22,4 @@ schema handling, and supporting services required by DeVy applications.
 Install DeVy Core through Composer:
 
 ```bash
-composer require rnd/devy-core
+composer require rnd-innovations/devy-core

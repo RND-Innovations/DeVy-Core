@@ -1,5 +1,5 @@
 {
-    "name": "rnd/devy-core",
+    "name": "rnd-innovations/devy-core",
     "description": "Core framework infrastructure for the DeVy PHP application platform.",
     "type": "library",
     "license": "MIT",

@@ -1,0 +1,27 @@
+{
+    "name": "rnd/devy-core",
+    "description": "Core framework infrastructure for the DeVy PHP application platform.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "bacon/bacon-qr-code": "^3.1",
+        "ezyang/htmlpurifier": "^4.19",
+        "twig/twig": "^3.0",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "DeVy\\Core\\": ""
+        },
+        "files": [
+            "Helpers.php"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

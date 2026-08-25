@@ -7,50 +7,85 @@ class AssetRegistry
     private array $definitions = [];
     private array $used = [];
 
-    private function normalize(string $name): string
+    private function normalize(string $key): string
     {
-        return strtolower($name); // 🔥 enforce consistency
+        return strtolower(trim($key));
     }
 
-    public function registerComponent(string $name, array $assets): void
-    {
+    /**
+     * Register an asset bundle.
+     */
+    public function register(
+        string $key,
+        array $assets
+    ): void {
 
-        $name = $this->normalize($name);
-        
-        if (!isset($this->definitions[$name])) {
-            $this->definitions[$name] = [
+        $key = $this->normalize($key);
+
+        if (!isset($this->definitions[$key])) {
+            $this->definitions[$key] = [
                 'css' => [],
-                'js'  => []
+                'js'  => [],
             ];
         }
 
-        // Merge safely
         foreach (['css', 'js'] as $type) {
-            if (!empty($assets[$type])) {
-                $this->definitions[$name][$type] = array_values(array_unique(array_merge(
-                    $this->definitions[$name][$type],
-                    $assets[$type]
-                )));
+
+            if (empty($assets[$type])) {
+                continue;
             }
+
+            $this->definitions[$key][$type] = array_values(
+                array_unique(
+                    array_merge(
+                        $this->definitions[$key][$type],
+                        $assets[$type]
+                    )
+                )
+            );
         }
     }
 
-    public function use(string $name): void
+    /**
+     * Mark an asset bundle for use.
+     */
+    public function use(string $key): void
     {
-        $name = $this->normalize($name);
-
-        $this->used[$name] = true;
+        $this->used[
+            $this->normalize($key)
+        ] = true;
     }
 
+    /**
+     * Check whether an asset bundle is registered.
+     */
+    public function has(string $key): bool
+    {
+        return isset(
+            $this->definitions[
+                $this->normalize($key)
+            ]
+        );
+    }
+
+    /**
+     * Get all used asset bundle keys.
+     */
     public function getUsed(): array
     {
         return array_keys($this->used);
     }
 
-    public function get(string $name): array
+    /**
+     * Get an asset bundle.
+     */
+    public function get(string $key): array
     {
-        $name = $this->normalize($name);
-
-        return $this->definitions[$name] ?? [];
+        return $this->definitions[
+            $this->normalize($key)
+        ] ?? [
+            'css' => [],
+            'js'  => [],
+        ];
     }
 }

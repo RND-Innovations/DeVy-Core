@@ -13,6 +13,7 @@ use DeVy\Core\Security\Honeypot;
 use DeVy\Core\Security\FormTimer;
 use DeVy\Core\Services\HookManager;
 use DeVy\Core\Services\PermissionService;
+use DeVy\Core\Support\FontRegistry;
 
 class TwigFunctions
 {
@@ -41,6 +42,29 @@ class TwigFunctions
                     return $this->hooks->renderFirst($name, $context);
                 },
                 ['is_safe' => ['html']]
+            )
+        );
+
+        $twig->addFunction(
+            new TwigFunction(
+                'font_stack',
+                function (string $type, string $font): string {
+
+                    return match ($type) {
+
+                        'body' => FontRegistry::bodyStack($font),
+
+                        'heading' => FontRegistry::headingStack($font),
+
+                        'mono' => FontRegistry::monoStack($font),
+
+                        default => FontRegistry::get('system')
+                            ?? 'system-ui, sans-serif',
+                    };
+                },
+                [
+                    'is_safe' => ['html'],
+                ]
             )
         );
 

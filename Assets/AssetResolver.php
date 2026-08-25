@@ -23,9 +23,9 @@ class AssetResolver
     {
         $files = [];
 
-        foreach ($this->registry->getUsed() as $component) {
+        foreach ($this->registry->getUsed() as $assetKey) {
 
-            $assets = $this->registry->get($component);
+            $assets = $this->registry->get($assetKey);
 
             foreach ($assets[$type] ?? [] as $file) {
 
@@ -37,6 +37,8 @@ class AssetResolver
             }
         }
 
-        return array_values(array_unique($files));
+        return array_values(
+            array_unique($files)
+        );
     }
 }

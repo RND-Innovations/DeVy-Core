@@ -164,33 +164,6 @@ class ModuleContext
         }
     }
 
-    public function registerAssets(
-        string $page,
-        array $assets
-    ): void {
-
-        $this->registerConditionalAssets(
-            fn($ctxData) =>
-                ($ctxData['page'] ?? null) === $page,
-            $page,
-            $assets
-        );
-    }
-
-    public function registerAreaAssets(
-        string $area,
-        string $component,
-        array $assets
-    ): void {
-
-        $this->registerConditionalAssets(
-            fn($ctxData) =>
-                ($ctxData['area'] ?? null) === $area,
-            $component,
-            $assets
-        );
-    }
-
     public function adminRoutes(
         callable $callback
     ): void {
@@ -274,35 +247,65 @@ class ModuleContext
         );
     }
 
+
     // -----------------------------
-    // Help Helpers secretly *_* shhh..
+    // Assets
     // -----------------------------
+
+    public function registerInterfaceAssets(
+        string $interface,
+        string $assetKey,
+        array $assets
+    ): void {
+
+        $this->registerConditionalAssets(
+            fn($context) =>
+                ($context['interface'] ?? null) === $interface,
+            $assetKey,
+            $assets
+        );
+    }
+
+    public function registerPageAssets(
+        string $pageId,
+        string $assetKey,
+        array $assets
+    ): void {
+
+        $this->registerConditionalAssets(
+            fn($context) =>
+                ($context['page_id'] ?? null) === $pageId,
+            $assetKey,
+            $assets
+        );
+    }
+
     protected function registerConditionalAssets(
         callable $condition,
-        string $component,
+        string $assetKey,
         array $assets
     ): void {
 
         $this->hook(
             'assets.register',
-            function ($ctxData) use (
+            function ($context) use (
                 $condition,
-                $component,
+                $assetKey,
                 $assets
             ) {
 
-                if (!$condition($ctxData)) {
+                if (!$condition($context)) {
                     return;
                 }
 
                 $registry = $this->assets();
 
-                $registry->registerComponent(
-                    $component,
+                $registry->register(
+                    $assetKey,
                     $assets
                 );
 
-                $registry->use($component);
+                $registry->use($assetKey);
             }
         );
     }

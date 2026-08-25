@@ -224,39 +224,18 @@ abstract class Controller
      */
     protected function abort(
         int $status = 404,
+        string $message = '',
         string $template = '',
-        array $data = []
-    ): Response {
-
-        $map = [
-            403 => '@theme/errors/403.twig',
-            404 => '@theme/errors/404.twig',
-            500 => '@theme/errors/500.twig',
-        ];
-
-        if ($template === '') {
-            $template = $map[$status]
-                ?? '@theme/errors/error.twig';
-        }
-
-        try {
-
-            $html = $this->renderView(
-                $template,
-                $data
-            );
-
-        } catch (Throwable) {
-
-            $html = sprintf(
-                '<h1>%d Error</h1>',
-                $status
-            );
-        }
-
-        return $this->response(
-            $html,
-            $status
+        array $data = [],
+        array $headers = []
+    ): never {
+        throw new HttpException(
+            $status,
+            $message,
+            $headers,
+            null,
+            $template,
+            $data
         );
     }
 

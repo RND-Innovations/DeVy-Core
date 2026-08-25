@@ -49,7 +49,7 @@ class ViewFinder
      */
     private function registerTheme(): void
     {
-        $themePath = $this->paths->themes($this->theme);
+        $themePath = $this->paths->themes($this->theme . "/views");
 
         if (is_dir($themePath)) {
             $this->namespaces['theme'][] = $themePath;

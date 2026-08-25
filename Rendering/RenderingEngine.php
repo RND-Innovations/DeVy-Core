@@ -13,8 +13,7 @@ class RenderingEngine
 
     public function render(string $template, array $data = []): string
     {
-        $data['_page'] = $data['_page'] ?? ($data['page_id'] ?? null);
-
+        
         $output = $this->twig->render($template, $data);
 
         $this->debug->dump();

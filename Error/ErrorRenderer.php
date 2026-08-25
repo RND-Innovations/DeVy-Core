@@ -16,8 +16,8 @@ use DeVy\Core\Services\{
     TemplateService
 };
 
+use DeVy\Core\Rendering\PageContext;
 use DeVy\Core\Contracts\Session\SessionInterface;
-
 use DeVy\Core\Http\Middleware\CsrfMiddleware;
 
 class ErrorRenderer
@@ -57,23 +57,7 @@ class ErrorRenderer
 
         $this->log($e, $status);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Debug Mode
-        |--------------------------------------------------------------------------
-        */
-
-        if ($this->debug) {
-            return $this->renderDebug($e, $status);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Production Mode
-        |--------------------------------------------------------------------------
-        */
-
-        return $this->renderProduction($e, $status);
+        return $this->renderError($e, $status);
     }
 
     /**
@@ -95,124 +79,70 @@ class ErrorRenderer
      * Production Rendering
      * ----------------------------------------
      */
-    private function renderProduction(
+    private function renderError(
         Throwable $e,
         int $status
     ): Response {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Try Twig Rendering First
-        |--------------------------------------------------------------------------
-        */
-
         try {
 
-            $html = $this->templates->render(
-                "@Error/{$status}.twig",
+            $template = "@theme/pages/error-page.twig";
+
+            $data = array_merge(
                 [
-                    'status' => $status,
-                    'message' => $e->getMessage()
-                ]
+                    'code'        => $status,
+                    'message'     => $status . " Error",
+                    'description' => $e->getMessage(),
+                ],
+                $e instanceof HttpException
+                    ? $e->getData()
+                    : []
             );
 
+            if ($this->debug) {
+                $error_trace = 
+                '<div style="border-radius: 1em; background: black; color:green; margin: 0 auto; padding: 2em; white-space: pre-wrap; font-size: 1.1em;"><p style="color:orange;"><strong style="color:red;">File: </strong>'.$e->getFile().'</p>
+                <p style="color:orange;"><strong style="color:red;">Line: </strong>'.$e->getLine().'</p>
+                <div>'.htmlspecialchars($e->getTraceAsString()).'</div></div>';
+            }
+
+
+            $context = $this->container->get(
+                PageContext::class
+            );
+            $context
+                ->id('error-' . $status)
+                ->class('error-page')
+                ->meta([
+                    'title'       => $status . " Error",
+                    'description' => $e->getMessage(),
+                ])
+                ->fields($data ?? [])
+                ->content($error_trace ?? '')
+                ->body('');
+
+
+            $html = $this->templates->render(
+                $template,
+                $context->toArray()
+            );                
+
+            
             return new Response(
                 $html,
-                $status
+                $status,
+                $e instanceof HttpException
+                    ? $e->getHeaders()
+                    : []
             );
 
-        } catch (Throwable $inner) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Hard Fallback Rendering
-            |--------------------------------------------------------------------------
-            */
+        } catch (Throwable) {
 
             return $this->renderFallback($status);
         }
     }
 
-    /**
-     * ----------------------------------------
-     * Debug Rendering
-     * ----------------------------------------
-     */
-    private function renderDebug(
-        Throwable $e,
-        int $status
-    ): Response {
 
-        ob_start();
-        ?>
-
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Debug Error</title>
-
-            <style>
-                body {
-                    background: #0f172a;
-                    color: #e2e8f0;
-                    font-family: monospace;
-                    padding: 40px;
-                }
-
-                .box {
-                    background: #1e293b;
-                    padding: 20px;
-                    border-radius: 8px;
-                }
-
-                h1 {
-                    color: #f87171;
-                }
-
-                .trace {
-                    margin-top: 20px;
-                    white-space: pre-wrap;
-                    font-size: 14px;
-                }
-            </style>
-        </head>
-
-        <body>
-
-            <div class="box">
-
-                <h1>
-                    <?= $status ?>
-                    -
-                    <?= htmlspecialchars($e->getMessage()) ?>
-                </h1>
-
-                <p>
-                    <strong>File:</strong>
-                    <?= $e->getFile() ?>
-                </p>
-
-                <p>
-                    <strong>Line:</strong>
-                    <?= $e->getLine() ?>
-                </p>
-
-                <div class="trace">
-                    <?= htmlspecialchars($e->getTraceAsString()) ?>
-                </div>
-
-            </div>
-
-        </body>
-        </html>
-
-        <?php
-
-        return new Response(
-            ob_get_clean(),
-            $status
-        );
-    }
 
     /**
      * ----------------------------------------

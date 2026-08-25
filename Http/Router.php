@@ -185,38 +185,38 @@ class Router
 
         $uri = $this->namedRoutes[$name];
 
-foreach ($params as $key => $value) {
+        foreach ($params as $key => $value) {
 
-    preg_match(
-        '#\{' . preg_quote($key, '#') . '(:[^}]+)?\}#',
-        $uri,
-        $m
-    );
+            preg_match(
+                '#\{' . preg_quote($key, '#') . '(:[^}]+)?\}#',
+                $uri,
+                $m
+            );
 
-    if (!empty($m[1])) {
+            if (!empty($m[1])) {
 
-        // custom regex → allow slashes
-        $value = implode(
-            '/',
-            array_map(
-                'rawurlencode',
-                explode('/', trim($value, '/'))
-            )
-        );
+                // custom regex → allow slashes
+                $value = implode(
+                    '/',
+                    array_map(
+                        'rawurlencode',
+                        explode('/', trim($value, '/'))
+                    )
+                );
 
-    } else {
+            } else {
 
-        // normal parameter
-        $value = rawurlencode($value);
+                // normal parameter
+                $value = rawurlencode($value);
 
-    }
+            }
 
-    $uri = preg_replace(
-        '#\{' . preg_quote($key, '#') . '(?::[^}]+)?\}#',
-        $value,
-        $uri
-    );
-}
+            $uri = preg_replace(
+                '#\{' . preg_quote($key, '#') . '(?::[^}]+)?\}#',
+                $value,
+                $uri
+            );
+        }
 
         $uri = preg_replace('#\{[a-zA-Z_]+(:[^}]+)?\}#', '', $uri);
 

@@ -150,6 +150,16 @@ class PathService
         return $this->safe($this->themes($theme) . '/assets');
     }
 
+    public function themeViews(string $theme): string
+    {
+        return $this->safe($this->themes($theme) . '/views');
+    }
+
+    public function themeSchemas(string $theme): string
+    {
+        return $this->safe($this->themes($theme) . '/schemas');
+    }
+
     // System helpers
     public function roles(): string
     {

@@ -44,7 +44,31 @@ class SchemaForm
 
             foreach ($section['fields'] as &$field) {
 
+                if (
+                    in_array(
+                        $field['type'] ?? '',
+                        ['tab', 'notice', 'separator'],
+                        true
+                    )
+                ) {
+                    continue;
+                }
+
                 if (($field['stores_value'] ?? true) === false) {
+                    continue;
+                }
+
+                if (($field['type'] ?? '') === 'repeater') {
+
+                    $value = $store->get(
+                        $field['path'],
+                        $field['default'] ?? []
+                    );
+
+                    $field['value'] = is_array($value)
+                        ? $value
+                        : [];
+
                     continue;
                 }
 
@@ -120,6 +144,16 @@ class SchemaForm
 
             foreach ($section['fields'] as $fieldKey => $field) {
 
+                if (
+                    in_array(
+                        $field['type'] ?? '',
+                        ['tab', 'notice', 'separator'],
+                        true
+                    )
+                ) {
+                    continue;
+                }
+    
                 if (!array_key_exists(
                     $fieldKey,
                     $input[$sectionKey]
@@ -162,6 +196,15 @@ class SchemaForm
                         );
 
                         break;
+                        
+                    case 'repeater':
+
+                        $value = is_array($value)
+                            ? $value
+                            : [];
+
+                        break;
+
                 }
 
                 if (

@@ -8,11 +8,17 @@ class HttpException extends \Exception
 
     protected array $headers = [];
 
+    protected string $template = '';
+
+    protected array $data = [];
+
     public function __construct(
         int $status,
         string $message = '',
         array $headers = [],
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
+        string $template = '',
+        array $data = []
     ) {
         parent::__construct(
             $message,
@@ -20,9 +26,10 @@ class HttpException extends \Exception
             $previous
         );
 
-        $this->status = $status;
-
-        $this->headers = $headers;
+        $this->status   = $status;
+        $this->headers  = $headers;
+        $this->template = $template;
+        $this->data     = $data;
     }
 
     public function getStatus(): int
@@ -33,5 +40,15 @@ class HttpException extends \Exception
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+
+    public function getTemplate(): string
+    {
+        return $this->template;
+    }
+
+    public function getData(): array
+    {
+        return $this->data;
     }
 }

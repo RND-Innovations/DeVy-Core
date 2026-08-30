@@ -70,10 +70,16 @@ class PathService
         return $this->safe($this->site() . '/logs');
     }
 
+    public function coreModules(string $path = ''): string
+    {
+        // This is where core modules are stored (global for multi sites).
+        return rtrim($this->base() . '/modules/' . ltrim($path, '/'), '/');
+    }
+
     public function modules(string $path = ''): string
     {
         // This is where site modules are stored.
-        return $this->site() . '/modules/' . trim($path, '/');
+        return rtrim($this->site() . '/modules/' . ltrim($path, '/'), '/');
     }
 
     public function moduleContent(string $module, string $path = ''): string

@@ -237,12 +237,63 @@ final class ModuleLoader
             if (!$progress) {
 
                 throw new RuntimeException(
-                    'Unresolved or circular module dependencies: '
-                    . implode(', ', array_keys($remaining))
+                    $this->dependencyError(
+                        $remaining
+                    )
                 );
 
             }
         }
+    }
+
+    private function dependencyError(
+        array $remaining
+    ): string {
+
+        $errors = [];
+
+        foreach ($remaining as $module => $data) {
+
+            $dependencies =
+                $data['definition']['meta']['requires']['modules']
+                ?? [];
+
+            foreach ($dependencies as $dependency) {
+
+                if (!$this->locator->has($dependency)) {
+
+                    $errors[] =
+                        "Module [$module] requires missing module [$dependency].";
+
+                    continue;
+                }
+
+                if (
+                    isset($remaining[$dependency])
+                    && $dependency !== $module
+                ) {
+
+                    $errors[] =
+                        "Module [$module] is waiting for [$dependency].";
+
+                }
+
+            }
+
+        }
+
+        if (!empty($errors)) {
+
+            return
+                "Unresolved module dependencies:\n"
+                . implode("\n", $errors);
+
+        }
+
+        return
+            'Circular module dependencies detected: '
+            . implode(', ', array_keys($remaining));
+
     }
 
     /**
@@ -344,9 +395,91 @@ final class ModuleLoader
         string $constraint
     ): bool {
 
-        return str_starts_with(
+        $constraint = trim($constraint);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Caret Constraint
+        |--------------------------------------------------------------------------
+        */
+
+        if (str_starts_with($constraint, '^')) {
+
+            $required = ltrim(
+                $constraint,
+                '^'
+            );
+
+            $parts = array_map(
+                'intval',
+                explode('.', $required)
+            );
+
+            $major = $parts[0] ?? 0;
+            $minor = $parts[1] ?? 0;
+            $patch = $parts[2] ?? 0;
+
+            /*
+            |--------------------------------------------------------------------------
+            | ^1.0 = >=1.0.0 <2.0.0
+            |--------------------------------------------------------------------------
+            */
+
+            if ($major > 0) {
+
+                $upper = ($major + 1) . '.0.0';
+
+            /*
+            |--------------------------------------------------------------------------
+            | ^0.2 = >=0.2.0 <0.3.0
+            |--------------------------------------------------------------------------
+            */
+
+            } elseif ($minor > 0) {
+
+                $upper =
+                    '0.'
+                    . ($minor + 1)
+                    . '.0';
+
+            /*
+            |--------------------------------------------------------------------------
+            | ^0.0.3 = >=0.0.3 <0.0.4
+            |--------------------------------------------------------------------------
+            */
+
+            } else {
+
+                $upper =
+                    '0.0.'
+                    . ($patch + 1);
+
+            }
+
+            return
+                version_compare(
+                    $version,
+                    $required,
+                    '>='
+                )
+                &&
+                version_compare(
+                    $version,
+                    $upper,
+                    '<'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Exact Version
+        |--------------------------------------------------------------------------
+        */
+
+        return version_compare(
             $version,
-            ltrim($constraint, '^')
+            $constraint,
+            '=='
         );
     }
 

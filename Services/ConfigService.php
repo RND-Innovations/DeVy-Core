@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DeVy\Core\Services;
 
+use DeVy\Core\Version;
 use DeVy\Core\Schema\SchemaDefaults;
 use DeVy\Core\Persistence\JsonStore;
 use DeVy\Core\Contracts\Store\StoreInterface;
@@ -123,19 +124,6 @@ class ConfigService implements StoreInterface
         PathService $paths
     ): array {
 
-        $composer = [];
-
-        $composerFile = $paths->base() . '/composer.json';
-
-        if (is_file($composerFile)) {
-
-            $composer = json_decode(
-                file_get_contents($composerFile),
-                true
-            ) ?? [];
-
-        }
-
         $https = $_SERVER['HTTPS'] ?? null;
 
         $forwarded =
@@ -182,10 +170,10 @@ class ConfigService implements StoreInterface
                 $url . '/' . $adminSlug,
 
             'version' =>
-                $composer['version'] ?? '1.0.0',
+                Version::CORE,
 
             'name' =>
-                $composer['description'] ?? 'DeVy',
+                Version::NAME,
 
         ];
 

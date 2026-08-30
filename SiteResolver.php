@@ -5,14 +5,12 @@ namespace DeVy\Core;
 class SiteResolver
 {
     private string $basePath;
-    private string $sitesPath;
     private string $domain;
     private array $config;
 
     public function __construct(string $basePath)
     {
         $this->basePath  = rtrim($basePath, '/');
-        $this->sitesPath = $this->basePath . '/Sites';
         $this->domain    = $this->detectDomain();
 
         $this->config = $this->resolve();
@@ -25,7 +23,7 @@ class SiteResolver
 
     private function resolve(): array
     {
-        $mapFile = $this->sitesPath . '/domains.php';
+        $mapFile = $this->basePath . '/domains.php';
 
         if (!file_exists($mapFile)) {
             throw new \RuntimeException("Missing domains map: {$mapFile}");
@@ -61,7 +59,7 @@ class SiteResolver
 
     public function getSitePath(): string
     {
-        return $this->sitesPath . '/' . $this->config['site'];
+        return $this->basePath . '/' . $this->config['site'];
     }
 
     public function getPublicPath(): string

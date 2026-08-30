@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="DeVy.png" alt="DeVy Framework" width="180">
+    <img src="DeVy.svg" alt="DeVy Framework" width="180">
 </p>
 
 <h1 align="center">DeVy Core</h1>

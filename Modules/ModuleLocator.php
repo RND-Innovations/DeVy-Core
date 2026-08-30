@@ -26,7 +26,7 @@ final class ModuleLocator
         $this->modules = [];
 
         $this->scanLocation(
-            basePath: $this->app->basePath() . '/Modules',
+            basePath: $this->paths->coreModules(),
             source: 'core'
         );
 

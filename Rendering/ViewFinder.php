@@ -32,7 +32,7 @@ class ViewFinder
         $this->registerTheme();
 
         $this->registerModules(
-            $this->paths->base() . '/Modules',
+            $this->paths->coreModules(),
             'core'
         );
 

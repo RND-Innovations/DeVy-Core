@@ -6,6 +6,6 @@ namespace DeVy\Core;
 
 final class Version
 {
-    public const CORE = '1.2.2';
+    public const CORE = '1.2.3';
     public const NAME = 'DeVy Core';
 }

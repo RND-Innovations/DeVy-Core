@@ -4,81 +4,214 @@ declare(strict_types=1);
 
 namespace DeVy\Core\Services;
 
-use DeVy\Core\Persistence\JsonStore;
+use DeVy\Core\Support\PermissionRegistry;
 
-class PermissionService
+final class PermissionService
 {
-    protected array $roles = [];
-
-    protected HookManager $hooks;
-
-    protected JsonStore $store;
-
-    public function __construct(
-        PathService $paths,
-        HookManager $hooks
-    ) {
-        $this->hooks = $hooks;
-
-        // Resolve roles file via PathService
-        $this->store = new JsonStore(
-            $paths->roles()
+    /**
+     * ---------------------------------------------------------
+     * Register Role
+     * ---------------------------------------------------------
+     */
+    public function addRole(
+        string $key,
+        string $name
+    ): void {
+        PermissionRegistry::addRole(
+            $key,
+            $name
         );
+    }
 
-        $data = $this->store->all();
-
-        // Ensure valid structure
-        $roles = is_array($data) ? $data : [];
-
-        // Allow plugins to modify roles
-        $this->roles = $this->hooks->dispatch(
-            'permissions.register',
+    /**
+     * ---------------------------------------------------------
+     * Register Roles
+     * ---------------------------------------------------------
+     */
+    public function addRoles(
+        array $roles
+    ): void {
+        PermissionRegistry::addRoles(
             $roles
         );
     }
 
-    public function rolePermissions(string $role): array
-    {
-        return $this->roles[$role] ?? [];
+    /**
+     * ---------------------------------------------------------
+     * Register Permission
+     * ---------------------------------------------------------
+     */
+    public function addPermission(
+        string $key,
+        string $name,
+        string $module,
+        string $description = '',
+        array $roles = [],
+        bool $active = true
+    ): void {
+        PermissionRegistry::addPermission(
+            key: $key,
+            name: $name,
+            module: $module,
+            description: $description,
+            roles: $roles,
+            active: $active
+        );
     }
 
+    /**
+     * ---------------------------------------------------------
+     * Register Permissions
+     * ---------------------------------------------------------
+     */
+    public function addPermissions(
+        array $permissions
+    ): void {
+        PermissionRegistry::addPermissions(
+            $permissions
+        );
+    }
+
+    /**
+     * ---------------------------------------------------------
+     * Check Permission
+     * ---------------------------------------------------------
+     */
     public function has(
         string $role,
         string $permission
     ): bool {
-        $permissions = $this->rolePermissions($role);
-
-        // Wildcard access
-        if (in_array('*', $permissions, true)) {
-            return true;
-        }
-
-        return in_array(
-            $permission,
-            $permissions,
-            true
+        return PermissionRegistry::has(
+            $role,
+            $permission
         );
     }
 
+    /**
+     * ---------------------------------------------------------
+     * Permissions For Role
+     * ---------------------------------------------------------
+     */
+    public function rolePermissions(
+        string $role
+    ): array {
+        return PermissionRegistry::forRole(
+            $role
+        );
+    }
+
+    /**
+     * ---------------------------------------------------------
+     * Available Roles
+     * ---------------------------------------------------------
+     */
+    public function roles(): array
+    {
+        return PermissionRegistry::roles();
+    }
+
+    /**
+     * ---------------------------------------------------------
+     * Role Exists
+     * ---------------------------------------------------------
+     */
+    public function hasRole(
+        string $role
+    ): bool {
+        return PermissionRegistry::hasRole(
+            $role
+        );
+    }
+
+    /**
+     * ---------------------------------------------------------
+     * Role Name
+     * ---------------------------------------------------------
+     */
+    public function roleName(
+        string $role
+    ): ?string {
+        return PermissionRegistry::roleName(
+            $role
+        );
+    }
+
+    /**
+     * ---------------------------------------------------------
+     * All Permissions
+     * ---------------------------------------------------------
+     */
     public function all(): array
     {
-        return $this->roles;
+        return PermissionRegistry::all();
     }
 
-    public function save(): bool
+    /**
+     * ---------------------------------------------------------
+     * Active Permissions
+     * ---------------------------------------------------------
+     */
+    public function active(): array
     {
-        $data = $this->hooks->dispatch(
-            'permissions.saving',
-            $this->roles
+        return PermissionRegistry::active();
+    }
+
+    /**
+     * ---------------------------------------------------------
+     * Permission Exists
+     * ---------------------------------------------------------
+     */
+    public function hasPermission(
+        string $permission
+    ): bool {
+        return PermissionRegistry::exists(
+            $permission
         );
+    }
 
-        $result = $this->store->save($data);
-
-        $this->hooks->dispatch(
-            'permissions.saved',
-            $data
+    /**
+     * ---------------------------------------------------------
+     * Permission Definition
+     * ---------------------------------------------------------
+     */
+    public function get(
+        string $permission
+    ): ?array {
+        return PermissionRegistry::get(
+            $permission
         );
+    }
 
-        return $result;
+    /**
+     * ---------------------------------------------------------
+     * Permissions By Module
+     * ---------------------------------------------------------
+     */
+    public function byModule(
+        string $module
+    ): array {
+        return PermissionRegistry::byModule(
+            $module
+        );
+    }
+
+    /**
+     * ---------------------------------------------------------
+     * Registered Modules
+     * ---------------------------------------------------------
+     */
+    public function modules(): array
+    {
+        return PermissionRegistry::modules();
+    }
+
+    /**
+     * ---------------------------------------------------------
+     * Permission Options
+     * ---------------------------------------------------------
+     */
+    public function options(): array
+    {
+        return PermissionRegistry::options();
     }
 }

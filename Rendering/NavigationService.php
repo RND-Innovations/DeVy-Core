@@ -19,30 +19,83 @@ class NavigationService
             'site' => []
         ]);
 
+        $role = $this->getUserRole();
+
         foreach ($nav as &$items) {
 
-            $items = array_values(array_filter($items, function ($item) {
+            $items = $this->filterItems(
+                $items,
+                $role
+            );
 
-                if (!isset($item['permission'])) {
-                    return true;
-                }
-
-                return $this->permissions->has(
-                    $this->getUserRole(),
-                    $item['permission']
-                );
-            }));
-
-            usort($items, fn($a, $b) =>
-                ($a['order'] ?? 0) <=> ($b['order'] ?? 0)
+            usort(
+                $items,
+                fn($a, $b) =>
+                    ($a['order'] ?? 0)
+                    <=>
+                    ($b['order'] ?? 0)
             );
         }
 
         return $nav;
     }
 
+    private function filterItems(
+        array $items,
+        string $role
+    ): array {
+
+        $filtered = [];
+
+        foreach ($items as $item) {
+
+            /*
+             * Check this item's permission.
+             */
+            if (
+                isset($item['permission']) &&
+                !$this->permissions->has(
+                    $role,
+                    $item['permission']
+                )
+            ) {
+                continue;
+            }
+
+            /*
+             * Recursively filter children.
+             */
+            if (isset($item['children'])) {
+
+                $item['children'] = $this->filterItems(
+                    $item['children'],
+                    $role
+                );
+
+                /*
+                 * If this item has children but all of them
+                 * were removed, decide whether the parent
+                 * should also disappear.
+                 */
+                if (
+                    empty($item['children']) &&
+                    !isset($item['url'])
+                ) {
+                    continue;
+                }
+            }
+
+            $filtered[] = $item;
+        }
+
+        return $filtered;
+    }
+
     private function getUserRole(): string
     {
-        return app(HookManager::class)->dispatch('auth.role', 'guest');
+        return $this->hooks->dispatch(
+            'auth.role',
+            'guest'
+        );
     }
 }

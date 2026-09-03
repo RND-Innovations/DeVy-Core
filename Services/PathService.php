@@ -166,11 +166,6 @@ class PathService
         return $this->safe($this->themes($theme) . '/schemas');
     }
 
-    // System helpers
-    public function roles(): string
-    {
-        return $this->system('roles.json');
-    }
 
 
 

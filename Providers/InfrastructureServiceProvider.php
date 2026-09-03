@@ -102,11 +102,9 @@ class InfrastructureServiceProvider
         |--------------------------------------------------------------------------
         */
 
-        $c->singleton(PermissionService::class, fn($c) =>
-            new PermissionService(
-                $c->get(PathService::class),
-                $c->get(HookManager::class)
-            )
+        $c->singleton(
+            PermissionService::class,
+            fn($c) => new PermissionService()
         );
 
 

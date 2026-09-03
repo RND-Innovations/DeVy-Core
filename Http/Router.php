@@ -99,7 +99,35 @@ class Router
             throw new \InvalidArgumentException('Invalid route definition.');
         }
 
-        $route['middleware'] = $route['middleware'] ?? [];
+        $route['middleware'] = (array) ($route['middleware'] ?? []);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Permission shortcut
+        |--------------------------------------------------------------------------
+        |
+        | 'permission' => 'admin.pages.edit'
+        |
+        | automatically becomes:
+        |
+        | 'admin.permission:admin.pages.edit'
+        |
+        */
+
+        if (!empty($route['permission'])) {
+
+            $permissionMiddleware =
+                'admin.permission:' . $route['permission'];
+
+            // Avoid adding it twice if explicitly declared as middleware.
+            if (!in_array(
+                $permissionMiddleware,
+                $route['middleware'],
+                true
+            )) {
+                $route['middleware'][] = $permissionMiddleware;
+            }
+        }
 
         $prefix = '';
 

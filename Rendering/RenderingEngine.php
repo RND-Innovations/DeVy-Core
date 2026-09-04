@@ -8,15 +8,16 @@ class RenderingEngine
 {
     public function __construct(
         private Environment $twig,
-        private HookDebugService $debug
+        private HookDebugService $hookDebug,
+        private RouteDebugService $routeDebug
     ) {}
 
     public function render(string $template, array $data = []): string
     {
-        
         $output = $this->twig->render($template, $data);
 
-        $this->debug->dump();
+        $this->hookDebug->dump();
+        $this->routeDebug->dump();
 
         return $output;
     }

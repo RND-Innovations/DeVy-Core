@@ -168,12 +168,12 @@ class ModuleContext
         callable $callback
     ): void {
 
+        $appCode = $this->config()->get('app.code');
+
         $this->router()->group(
             [
                 'prefix' => trim(
-                    $this->config()->get(
-                        'admin.slug'
-                    ),
+                    $this->config()->get( 'admin.slug', $appCode ),
                     '/'
                 ),
                 'middleware' => [

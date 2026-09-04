@@ -12,7 +12,8 @@ use DeVy\Core\Rendering\{
     TwigFunctions,
     TwigAssets,
     NavigationService,
-    HookDebugService
+    HookDebugService,
+    RouteDebugService
 };
 
 use Twig\Environment;
@@ -143,7 +144,8 @@ class RenderingServiceProvider
         $c->singleton(RenderingEngine::class, fn($c) =>
             new RenderingEngine(
                 $c->get(Environment::class),
-                $c->get(HookDebugService::class)
+                $c->get(HookDebugService::class),
+                $c->get(RouteDebugService::class)
             )
         );
     }

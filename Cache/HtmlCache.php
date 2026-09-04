@@ -26,7 +26,7 @@ final class HtmlCache
     {
         return (bool) $this->config->get(
             'site.cache',
-            true
+            false
         );
     }
 

@@ -315,14 +315,23 @@ class Router
         return $this->routes;
     }
 
-    public function debugRoutes(): void
+    public function exportDebug(): array
     {
-        echo "<pre>";
-        foreach ($this->routes as $r) {
-            $name = $r['name'] ?? 'no-name';
-            echo "{$r['method']} {$r['uri']} ({$name})\n";
+        $routes = [];
+
+        foreach ($this->routes as $route) {
+            $routes[] = [
+                'method' => strtoupper($route['method']),
+                'uri' => $route['uri'],
+                'name' => $route['name'] ?? null,
+                'action' => $route['action'],
+                'middleware' => $route['middleware'],
+            ];
         }
-        echo "</pre>";
-        die;
+
+        return [
+            'generated_at' => date('c'),
+            'routes' => $routes
+        ];
     }
 }

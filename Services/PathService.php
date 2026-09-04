@@ -178,7 +178,7 @@ class PathService
         $path = $this->safe($path);
 
         if (!is_dir($path)) {
-            if (!mkdir($path, 0777, true) && !is_dir($path)) {
+            if (!mkdir($path, 0775, true) && !is_dir($path)) {
                 throw new \RuntimeException("Failed to create directory: {$path}");
             }
         }

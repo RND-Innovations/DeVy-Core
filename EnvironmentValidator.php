@@ -2,18 +2,13 @@
 
 namespace DeVy\Core;
 
-use DeVy\Core\{
-    Services\PathService
-};
+use DeVy\Core\Services\PathService;
 
 class EnvironmentValidator
 {
-    private PathService $paths;
-
-    public function __construct(PathService $paths)
-    {
-        $this->paths = $paths;
-    }
+    public function __construct(
+        private PathService $paths
+    ) {}
 
     public function validate(): void
     {
@@ -28,14 +23,7 @@ class EnvironmentValidator
         ];
 
         foreach ($requiredWritable as $path) {
-
-            if (!is_dir($path)) {
-                throw new \RuntimeException("Missing directory: {$path}");
-            }
-
-            if (!is_writable($path)) {
-                throw new \RuntimeException("Directory not writable: {$path}");
-            }
+            $this->paths->ensureWritable($path);
         }
     }
 }
